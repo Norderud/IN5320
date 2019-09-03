@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Interactive list</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+
+<body>
+    <div style="margin: 50px">
+        <input id="country-input" type="text" placeholder="Country"><button onClick="getCountryFromInput()"> Add
+        </button> <br>
+        <input id="search-input" type="text" placeholder="Search" onchange="filterList()">
+
+        <ul id="list">
+        </ul>
+    </div>
+</body>
+<script>
+    var countryList = Object.values(localStorage);
+    window.onload = updateList(countryList);
+    var interval = setInterval(updatePopulation, 1000);
+    function updatePopulation() {
+        for (var i = 0; i < countryList.length; i++) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var responseObject = JSON.parse(this.responseText);
+                    var today = responseObject.total_population[0].population;
+                    var tommorow = responseObject.total_population[1].population;
+                    var growthRate = ((tommorow - today) / 864).toFixed(4);
+                    document.getElementById(countryList[i]+"_population").innerHTML = " Population:  "+today + " Growth Rate: " + growthRate+ "  ";
+                }
+            }
+            xhttp.open("GET", "http://54.72.28.201/1.0/population/" + countryList[i] + "/today-and-tomorrow", false);
+            xhttp.send();
+        }
+    }
+    function getCountryFromInput() {
+        var country = document.getElementById("country-input").value;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var responseObject = JSON.parse(this.responseText);
+                var population = responseObject.total_population[0].population;
+                saveCountry(country);
+                updateList(Object.values(localStorage));
+            } if (this.status == 400) {
+                alert("Could not find that country, please try again");
+            }
+        }
+        xhttp.open("GET", "http://54.72.28.201/1.0/population/" + country + "/today-and-tomorrow");
+        xhttp.send();
+
+
+    }
+    function saveCountry(country) {
+        localStorage.setItem(country, country);
+    }
+    function createListElement(country) {
+        var node = document.createElement("LI");
+        node.id = country;
+        var textnode = document.createTextNode(country);
+        node.appendChild(textnode);
+        var population = document.createElement("i");
+        population.id = country+"_population";
+        population.style = "color:blue";
+        var button = document.createElement("BUTTON");
+        button.innerHTML = '<i class="fa fa-close" style="color:red;"></i>';
+        button.addEventListener('click', function () {
+            document.getElementById("list").removeChild(node);
+            localStorage.removeItem(country);
+        });
+        node.appendChild(population);
+        node.appendChild(button);
+        document.getElementById("list").appendChild(node);
+    }
+    function updateList(list) {
+        countryList = list;
+        var node = document.getElementById("list");
+        node.innerHTML = '';
+        for (var i = 0; i < countryList.length; i++) {
+            createListElement(countryList[i]);
+        }
+    }
+
+    function searchArray(list, searchWord) {
+        result = [];
+        for (var i = 0; i < list.length; i++) {
+            if (startsWith(list[i], searchWord))
+                result.push(list[i]);
+        }
+        return result;
+    }
+    function startsWith(element, searchWord) {
+        return element.startsWith(searchWord);
+    }
+    function filterList() {
+        var searchWord = document.getElementById("search-input").value;
+        updateList(searchArray(Object.values(localStorage), searchWord));
+    }
+</script>
+
+</html>

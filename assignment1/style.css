@@ -1,0 +1,52 @@
+header {
+    font-size: 2em;
+    text-align: center;
+    border: 2px solid black;
+    width: 70%;
+    margin:auto;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+body {
+    width: 100%;
+}
+
+nav{
+    display: flex;
+    text-align: center;
+    font-size: 0.7em;
+    align-items: center;
+    flex-flow: row wrap;
+    margin: 10px;
+}
+nav a , nav img{
+    flex-grow:1;
+}
+#project-container {
+    width: 70%;
+    margin: auto;
+    text-align: center;
+    border: 2px solid black;
+}
+#list-container {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-around;
+}
+#list-container li {
+    list-style-type: none;
+}
+
+.project-item{
+    width: 400px;
+    height: 200px;
+    margin: auto;
+    margin-bottom: 20px;
+    border: 1px solid black;
+}
+.project-item:hover{
+    background: aqua;
+}
+#img {
+    width: 200px;
+}
